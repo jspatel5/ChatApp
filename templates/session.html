@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title>Flask_Chat_App</title>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <style type="text/css">
+.chat
+{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.chat li
+{
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px dotted #B3A9A9;
+}
+
+.chat li.left .chat-body
+{
+    margin-left: 60px;
+}
+
+.chat li.right .chat-body
+{
+    margin-right: 60px;
+}
+
+
+.chat li .chat-body p
+{
+    margin: 0;
+    color: #777777;
+}
+
+.panel .slidedown .glyphicon, .chat .glyphicon
+{
+    margin-right: 5px;
+}
+
+.panel-body
+{
+    overflow-y: scroll;
+    height: 250px;
+}
+
+::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-thumb
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #555;
+}
+      
+
+    </style>
+  </head>
+  <body>
+    
+    <div class="container" style="margin-top: 50px">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-comment"></span> Welcome to new ASU group chat ..
+                </div>
+                <div class="panel-body">
+                    <ul class="chat">
+                        <li class="left clearfix"><span class="chat-img pull-left">
+                            <img src="http://placehold.it/50/55C1E7/fff&text=ASU" alt="User Avatar" class="img-circle" />
+                        </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <strong class="primary-font">Sun Devils - Spring 2019</strong> <small class="pull-right text-muted">
+                                        <span class="glyphicon glyphicon-time"></span>Started on 05 Feb 2019</small>
+                                </div>
+                                <h5 style='color: #ccc;'>No message yet..</h5>
+                                <div class="message_holder"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                  <h4></h4>
+                  <div class = "active_users"></div>
+                </div>
+
+                <div class="panel-footer">
+                    <div class="input-group">
+                       <form action="" method="POST">
+                        <span class="input-group-btn">
+                        <input id="btn-input" type="text" class="username" class="form-control input-sm" placeholder="User Name"/>
+                        <input id="btn-input" type="text" class="message" class="form-control input-sm" placeholder="Messages"/>
+                       
+                        <input class="btn btn-warning btn-sm" id="btn-chat" type="submit" value="Send" />
+                        </span>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    
+    <script type="text/javascript">
+      var socket = io.connect('http://' + document.domain + ':' + location.port);
+      var td = new Date();
+      var fd = td.getHours()+":"+td.getMinutes()+ " "+(td.getMonth()+1)+"/"+(td.getDay()+1)+"/"+td.getFullYear();
+      
+      socket.on( 'connect', function() {
+        socket.emit( 'my event', {
+          data: 'User Connected'
+        } )
+        var form = $( 'form' ).on( 'submit', function( e ) {
+          e.preventDefault()
+          let user_name = $( 'input.username' ).val()
+          let user_input = $( 'input.message' ).val()
+          socket.emit( 'my event', {
+            user_name : user_name,
+            message : user_input,
+            fd : fd
+          } )
+          $( 'input.message' ).val( '' ).focus()
+        } )
+      } )
+
+      socket.on( 'my response', function( msg ) {
+        console.log( msg )
+        if( typeof msg.user_name !== 'undefined' ) {
+
+          if(msg.user_name !== '' && msg.message!== ''){
+            $( 'div.message_holder' ).append( '<div><b style="color: #000">'+msg.user_name+'</b><br><pre>'+msg.message+ '<br>                          '+msg.fd+'</pre></div>' )
+            $( 'h5' ).remove()
+            $('h4').append('Active Users in chat');
+            $( 'div.active_users' ).append('<b style="color: green">'+msg.user_name+' '+'</b>')
+          }
+          else{
+            $( 'div.message_holder' ).append('<b style="color: red">User name and message can not be empty.</b>')
+          }
+
+        }
+      })
+    </script>
+
+  </body>
+  </html>
